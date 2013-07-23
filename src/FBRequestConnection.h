@@ -59,6 +59,31 @@ typedef void (^FBRequestHandler)(FBRequestConnection *connection,
                                  NSError *error);
 
 /*!
+ @typedef FBRequestProgressHandler
+ 
+ @abstract
+ A block that is passed to addRequest to register for a callback with update of the sending progress
+ of that request.
+ 
+ @discussion
+ Pass a block of this type when calling addRequest.  This will be called while the request
+ progresses.  The call occurs on the UI thread.
+ 
+ @param connection                  The `FBRequestConnection` that sent the request.
+
+ @param bytesWritten                The amount of bytes sent since the last update.
+ 
+ @param totalBytesWritten           The total bytes written in this connection.
+ 
+ @param totalBytesExpectedToWrite   The total amount of bytes to send.
+
+*/
+typedef void (^FBRequestProgressHandler)(FBRequestConnection *connection,
+                                         NSInteger bytesWritten,
+                                         NSInteger totalBytesWritten,
+                                         NSInteger totalBytesExpectedToWrite);
+
+/*!
  @class FBRequestConnection
 
  @abstract
@@ -155,6 +180,25 @@ typedef void (^FBRequestHandler)(FBRequestConnection *connection,
 */
 - (void)addRequest:(FBRequest*)request
  completionHandler:(FBRequestHandler)handler;
+
+/*!
+ @method
+ 
+ @abstract
+ This method adds an <FBRequest> object to this connection and then calls
+ <start> on the connection.
+ 
+ @discussion
+ The completion handler is retained until the block is called upon the
+ completion or cancellation of the connection.
+ 
+ @param request         A request to be included in the round-trip when start is called.
+ @param handler         A handler to call back when the round-trip completes or times out.
+ @param progressHandler A handler to call back as the round-trip progresses.
+ */
+- (void)addRequest:(FBRequest*)request
+ completionHandler:(FBRequestHandler)handler
+   progressHandler:(FBRequestProgressHandler)progressHandler;
 
 /*!
  @method
@@ -262,9 +306,11 @@ typedef void (^FBRequestHandler)(FBRequestConnection *connection,
   
  @param photo            A `UIImage` for the photo to upload.
  @param handler          The handler block to call when the request completes with a success, error, or cancel action.
+ @param progressHandler  The handler block to call when the request progresses with the number of bytes sent.
  */
 + (FBRequestConnection*)startForUploadPhoto:(UIImage *)photo
-                          completionHandler:(FBRequestHandler)handler;
+                          completionHandler:(FBRequestHandler)handler
+                            progressHandler:(FBRequestProgressHandler)progressHandler;
 
 /*!
  @method

@@ -69,15 +69,27 @@ typedef void (^KeyValueActionHandler)(NSString *key, id value);
 
 @property (nonatomic, retain) FBRequest *request;
 @property (nonatomic, copy) FBRequestHandler completionHandler;
+@property (nonatomic, copy) FBRequestProgressHandler progressHandler;
 @property (nonatomic, copy) NSString *batchEntryName;
 
 - (id) initWithRequest:(FBRequest *)request
      completionHandler:(FBRequestHandler)handler
         batchEntryName:(NSString *)name;
 
+- (id) initWithRequest:(FBRequest *)request
+     completionHandler:(FBRequestHandler)handler
+       progressHandler:(FBRequestProgressHandler)progressHandler
+        batchEntryName:(NSString *)name;
+
 - (void)invokeCompletionHandlerForConnection:(FBRequestConnection *)connection
                                  withResults:(id)results
                                        error:(NSError *)error;
+
+- (void)invokeProgressHandlerForConnection:(FBRequestConnection *)connection
+                              bytesWritten:(NSInteger)bytesWritten
+                         totalBytesWritten:(NSInteger)totalBytesWritten
+                 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite;
+
 @end
 
 @implementation FBRequestMetadata
@@ -89,11 +101,19 @@ typedef void (^KeyValueActionHandler)(NSString *key, id value);
 - (id) initWithRequest:(FBRequest *)request
      completionHandler:(FBRequestHandler)handler
         batchEntryName:(NSString *)name {
-    
+    return [self initWithRequest:request completionHandler:handler progressHandler:nil
+                  batchEntryName:name];
+}
+
+- (id) initWithRequest:(FBRequest *)request
+     completionHandler:(FBRequestHandler)handler
+       progressHandler:(FBRequestProgressHandler)progressHandler
+        batchEntryName:(NSString *)name {
     if (self = [super init]) {
-        self.request = request;
-        self.completionHandler = handler;
-        self.batchEntryName = name;
+      self.request = request;
+      self.completionHandler = handler;
+      self.progressHandler = progressHandler;
+      self.batchEntryName = name;
     }
     return self;
 }
@@ -101,6 +121,7 @@ typedef void (^KeyValueActionHandler)(NSString *key, id value);
 - (void) dealloc {
     [_request release];
     [_completionHandler release];
+    [_progressHandler release];
     [_batchEntryName release];
     [super dealloc];
 }
@@ -110,6 +131,15 @@ typedef void (^KeyValueActionHandler)(NSString *key, id value);
                                        error:(NSError *)error {
     if (self.completionHandler) {
         self.completionHandler(connection, results, error);
+    }
+}
+
+- (void)invokeProgressHandlerForConnection:(FBRequestConnection *)connection
+                              bytesWritten:(NSInteger)bytesWritten
+                         totalBytesWritten:(NSInteger)totalBytesWritten
+                 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
+    if (self.progressHandler) {
+        self.progressHandler(connection, bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
     }
 }
 
@@ -313,6 +343,13 @@ typedef enum FBRequestConnectionState {
     [self addRequest:request completionHandler:handler batchEntryName:nil];
 }
 
+- (void)addRequest:(FBRequest*)request
+ completionHandler:(FBRequestHandler)handler
+   progressHandler:(FBRequestProgressHandler)progressHandler {
+    [self addRequest:request completionHandler:handler progressHandler:progressHandler
+      batchEntryName:nil];
+}
+
 - (void)addRequest:(FBRequest *)request
  completionHandler:(FBRequestHandler)handler
     batchEntryName:(NSString *)name
@@ -325,6 +362,22 @@ typedef enum FBRequestConnectionState {
                                                               batchEntryName:name];
     [self.requests addObject:metadata];
     [metadata release];
+}
+
+- (void)addRequest:(FBRequest *)request
+ completionHandler:(FBRequestHandler)handler
+   progressHandler:(FBRequestProgressHandler)progressHandler
+    batchEntryName:(NSString *)name
+{
+  NSAssert(self.state == kStateCreated,
+           @"Requests must be added before starting or cancelling.");
+  
+  FBRequestMetadata *metadata = [[FBRequestMetadata alloc] initWithRequest:request
+                                                         completionHandler:handler
+                                                           progressHandler:progressHandler
+                                                            batchEntryName:name];
+  [self.requests addObject:metadata];
+  [metadata release];
 }
 
 - (void)start
@@ -353,13 +406,14 @@ typedef enum FBRequestConnectionState {
 
 + (FBRequestConnection*)startForMyFriendsWithCompletionHandler:(FBRequestHandler)handler {
     FBRequest *request = [FBRequest requestForMyFriends];
-    return [request startWithCompletionHandler:handler];    
+    return [request startWithCompletionHandler:handler];
 }
 
 + (FBRequestConnection*)startForUploadPhoto:(UIImage *)photo
-                          completionHandler:(FBRequestHandler)handler {
+                          completionHandler:(FBRequestHandler)handler
+                            progressHandler:(FBRequestProgressHandler)progressHandler {
     FBRequest *request = [FBRequest requestForUploadPhoto:photo];
-    return [request startWithCompletionHandler:handler];    
+    return [request startWithCompletionHandler:handler progressHandler:progressHandler];
 }
 
 + (FBRequestConnection *)startForPostStatusUpdate:(NSString *)message
@@ -492,6 +546,7 @@ typedef enum FBRequestConnectionState {
 - (void)startWithCacheIdentity:(NSString*)cacheIdentity 
          skipRoundtripIfCached:(BOOL)skipRoundtripIfCached
 {
+    FBRequestProgressHandler progressHandler = nil;
     if ([self.requests count] == 1) {
         FBRequestMetadata *firstMetadata = [self.requests objectAtIndex:0];
         if ([firstMetadata.request delegate]) {
@@ -501,6 +556,7 @@ typedef enum FBRequestConnectionState {
             [self.deprecatedRequest setState:kFBRequestStateLoading];
 #pragma GCC diagnostic pop
         }
+        progressHandler = firstMetadata.progressHandler;
     }
     
     NSMutableURLRequest *request = nil;
@@ -578,13 +634,24 @@ typedef enum FBRequestConnectionState {
                                   data:responseData 
                                orError:error];
         };
-        
+        FBURLConnectionProgressHandler urlProgressHandler =
+        ^(FBURLConnection *connection,
+          NSInteger bytesWritten,
+          NSInteger totalBytesWritten,
+          NSInteger totalBytesExpectedToWrite) {
+            if (progressHandler) {
+                progressHandler(self, bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
+            }
+        };
+      
+      
         id<FBRequestDelegate> deprecatedDelegate = [self.deprecatedRequest delegate];
         if ([deprecatedDelegate respondsToSelector:@selector(requestLoading:)]) {
             [deprecatedDelegate requestLoading:self.deprecatedRequest];
         }
         
-        [self startURLConnectionWithRequest:request skipRoundTripIfCached:NO completionHandler:handler];
+        [self startURLConnectionWithRequest:request skipRoundTripIfCached:NO completionHandler:handler
+                            progressHandler:urlProgressHandler];
     } else {
         _isResultFromCache = YES;
         
@@ -598,10 +665,12 @@ typedef enum FBRequestConnectionState {
 
 - (void)startURLConnectionWithRequest:(NSURLRequest *)request
                 skipRoundTripIfCached:(BOOL)skipRoundTripIfCached
-                    completionHandler:(FBURLConnectionHandler) handler {
+                    completionHandler:(FBURLConnectionHandler) handler
+                      progressHandler:(FBURLConnectionProgressHandler)progressHandler {
     FBURLConnection *connection = [[self newFBURLConnection] initWithRequest:request
                                                           skipRoundTripIfCached:skipRoundTripIfCached
-                                                              completionHandler:handler];
+                                                              completionHandler:handler
+                                                             progressHandler:progressHandler];
     self.connection = connection;
     [connection release];    
 }

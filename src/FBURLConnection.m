@@ -25,11 +25,12 @@
 
 static NSArray* _cdnHosts;
 
-@interface FBURLConnection ()
+@interface FBURLConnection () <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @property (nonatomic, retain) NSURLConnection *connection;
 @property (nonatomic, retain) NSMutableData *data;
 @property (nonatomic, copy) FBURLConnectionHandler handler;
+@property (nonatomic, copy) FBURLConnectionProgressHandler progressHandler;
 @property (nonatomic, retain) NSURLResponse *response;
 @property (nonatomic) unsigned long requestStartTime;
 @property (nonatomic, readonly) NSUInteger loggerSerialNumber;
@@ -74,9 +75,28 @@ static NSArray* _cdnHosts;
                completionHandler:handler];
 }
 
+- (FBURLConnection *)initWithURL:(NSURL *)url
+               completionHandler:(FBURLConnectionHandler)handler
+                 progressHandler:(FBURLConnectionProgressHandler)progressHandler {
+  NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url] autorelease];
+  
+  return [self initWithRequest:request
+         skipRoundTripIfCached:YES
+             completionHandler:handler
+               progressHandler:progressHandler];
+}
+
 - (FBURLConnection *)initWithRequest:(NSURLRequest *)request
                skipRoundTripIfCached:(BOOL)skipRoundtripIfCached
                    completionHandler:(FBURLConnectionHandler)handler {
+  return [self initWithRequest:request skipRoundTripIfCached:skipRoundtripIfCached
+             completionHandler:handler progressHandler:nil];
+}
+
+- (FBURLConnection *)initWithRequest:(NSURLRequest *)request
+               skipRoundTripIfCached:(BOOL)skipRoundtripIfCached
+                   completionHandler:(FBURLConnectionHandler)handler
+                     progressHandler:(FBURLConnectionProgressHandler)progressHandler {
     if (self = [super init]) {
         self.skipRoundtripIfCached = skipRoundtripIfCached;
         
@@ -176,6 +196,7 @@ static NSArray* _cdnHosts;
     [_connection release];
     [_data release];
     [_handler release];
+    [_progressHandler release];
     [super dealloc];
 }
 
@@ -221,6 +242,7 @@ didReceiveResponse:(NSURLResponse *)response {
         [self logAndInvokeHandler:self.handler error:error];
     } @finally {
         self.handler = nil;
+        self.progressHandler = nil;
     }
 }
 
@@ -236,6 +258,7 @@ didReceiveResponse:(NSURLResponse *)response {
         [self logAndInvokeHandler:self.handler response:self.response responseData:self.data];
     } @finally {
         self.handler = nil;
+        self.progressHandler = nil;
     }
 }
 
@@ -260,6 +283,7 @@ didReceiveResponse:(NSURLResponse *)response {
                 [cacheResponse release];
             } @finally {
                 self.handler = nil;
+              self.progressHandler = nil;
             }
 
             return nil;
@@ -267,6 +291,14 @@ didReceiveResponse:(NSURLResponse *)response {
     }
     
     return request;
+}
+
+- (void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten
+    totalBytesWritten:(NSInteger)totalBytesWritten
+    totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
+  if (self.progressHandler) {
+    self.progressHandler(self, bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
+  }
 }
 
 - (BOOL)shouldShortCircuitRedirectResponse:(NSURLResponse *)redirectResponse {
