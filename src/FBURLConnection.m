@@ -123,6 +123,7 @@ static NSArray* _cdnHosts;
                 url.absoluteString]];
             
             self.handler = handler;
+            self.progressHandler = progressHandler;
         }
 
         // always attempt to autoPublish.  this function internally
@@ -283,7 +284,7 @@ didReceiveResponse:(NSURLResponse *)response {
                 [cacheResponse release];
             } @finally {
                 self.handler = nil;
-              self.progressHandler = nil;
+                self.progressHandler = nil;
             }
 
             return nil;
