@@ -137,9 +137,10 @@ static NSArray* _cdnHosts;
                       error:(NSError *)error {
     if (error) {
         NSString *logEntry = [NSString
-                    stringWithFormat:@"FBURLConnection <#%d>:\n  Error: '%@'",
+                    stringWithFormat:@"FBURLConnection <#%d>:\n  Error: '%@'\n%@\n",
                     self.loggerSerialNumber,
-                    [error localizedDescription]];
+                    [error localizedDescription],
+                    [error userInfo]];
         
         [self logMessage:logEntry];
     }
@@ -189,7 +190,7 @@ static NSArray* _cdnHosts;
 }
 
 - (void)logMessage:(NSString *)message {
-    [FBLogger singleShotLogEntry:FBLoggingBehaviorFBURLConnections formatString:message];
+    [FBLogger singleShotLogEntry:FBLoggingBehaviorFBURLConnections formatString:@"%@", message];
 }
 
 - (void)dealloc {
