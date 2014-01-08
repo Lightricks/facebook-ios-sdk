@@ -536,7 +536,10 @@ typedef void (^FBRequestProgressHandler)(FBRequestConnection *connection,
  @param graphObject      An object or open graph action to post.
 
  @param handler          The handler block to call when the request completes with a success, error, or cancel action.
- */
+
+ @discussion This method is typically used for posting an open graph action. If you are only
+ posting an open graph object (without an action), consider using `startForPostOpenGraphObject:completionHandler:`
+*/
 + (FBRequestConnection*)startForPostWithGraphPath:(NSString*)graphPath
                                       graphObject:(id<FBGraphObject>)graphObject
                                 completionHandler:(FBRequestHandler)handler;
