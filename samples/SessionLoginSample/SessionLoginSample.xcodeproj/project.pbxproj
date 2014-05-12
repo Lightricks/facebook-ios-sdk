@@ -48,6 +48,10 @@
 		85C69DB11602B33C008AD9A0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		85C69DB21602B33C008AD9A0 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		85C69DB31602B33C008AD9A0 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		8986C7F81890A5F9004B90DD /* Application.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Application.xcconfig; sourceTree = "<group>"; };
+		8986C7F91890A5F9004B90DD /* Project-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Debug.xcconfig"; sourceTree = "<group>"; };
+		8986C7FA1890A5F9004B90DD /* Project-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Release.xcconfig"; sourceTree = "<group>"; };
+		8986C7FB1890A5F9004B90DD /* Project.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Project.xcconfig; sourceTree = "<group>"; };
 		DDA290A315ABA93700F533F9 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = ../../build/FacebookSDK.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,6 +73,7 @@
 		84C757AD152A38770070DD9C = {
 			isa = PBXGroup;
 			children = (
+				8986C7F71890A5F9004B90DD /* Configurations */,
 				84C757C2152A38770070DD9C /* SessionLoginSample */,
 				84C757BB152A38770070DD9C /* Frameworks */,
 				84C757B9152A38770070DD9C /* Products */,
@@ -128,6 +133,18 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		8986C7F71890A5F9004B90DD /* Configurations */ = {
+			isa = PBXGroup;
+			children = (
+				8986C7F81890A5F9004B90DD /* Application.xcconfig */,
+				8986C7F91890A5F9004B90DD /* Project-Debug.xcconfig */,
+				8986C7FA1890A5F9004B90DD /* Project-Release.xcconfig */,
+				8986C7FB1890A5F9004B90DD /* Project.xcconfig */,
+			);
+			name = Configurations;
+			path = ../Configurations;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -154,7 +171,7 @@
 		84C757AF152A38770070DD9C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = 84C757B2152A38770070DD9C /* Build configuration list for PBXProject "SessionLoginSample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -237,92 +254,29 @@
 /* Begin XCBuildConfiguration section */
 		84C757D7152A38780070DD9C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8986C7F91890A5F9004B90DD /* Project-Debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		84C757D8152A38780070DD9C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8986C7FA1890A5F9004B90DD /* Project-Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		84C757DA152A38780070DD9C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8986C7F81890A5F9004B90DD /* Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../build\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SessionLoginSample/SessionLoginSample-Prefix.pch";
-				INFOPLIST_FILE = "SessionLoginSample/SessionLoginSample-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = SessionLoginSample;
-				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
 		};
 		84C757DB152A38780070DD9C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8986C7F81890A5F9004B90DD /* Application.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../build\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SessionLoginSample/SessionLoginSample-Prefix.pch";
-				INFOPLIST_FILE = "SessionLoginSample/SessionLoginSample-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = SessionLoginSample;
-				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
