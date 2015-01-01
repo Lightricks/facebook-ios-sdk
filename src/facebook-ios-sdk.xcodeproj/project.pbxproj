@@ -250,7 +250,6 @@
 		89BEB40618E47FB7006C97A6 /* FBColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 89BEB40518E47FB7006C97A6 /* FBColor.m */; };
 		89BEB40B18E48003006C97A6 /* FBLoginView.h in Headers */ = {isa = PBXBuildFile; fileRef = 89BEB40918E48003006C97A6 /* FBLoginView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		89BEB40C18E48003006C97A6 /* NSError+FBError.h in Headers */ = {isa = PBXBuildFile; fileRef = 89BEB40A18E48003006C97A6 /* NSError+FBError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		89D8D78819901A080041CF82 /* libBolts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 85B08E41190596EB00EE0BB1 /* libBolts.a */; };
 		89D8D78F19901A840041CF82 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 85C610951699109000E7BB7D /* libOCMock.a */; };
 		89D8D79019901A880041CF82 /* libOHHTTPStubs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 89D8D767199015740041CF82 /* libOHHTTPStubs.a */; };
 		89D8D79219901B1A0041CF82 /* libfacebook_ios_sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D2AAC07E0554694100DB518D /* libfacebook_ios_sdk.a */; };
@@ -966,7 +965,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89D8D78819901A080041CF82 /* libBolts.a in Frameworks */,
 				B96F15E3152B927E00A52896 /* CoreLocation.framework in Frameworks */,
 				8446FDB4151D2674000BE007 /* UIKit.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
